@@ -20,6 +20,7 @@ export default function SearchFilters() {
   const [minBeds, setMinBeds] = useState(sp.get("min_beds") || "");
   const [hasPhotos, setHasPhotos] = useState(sp.get("has_photos") === "true");
   const [hasAgent, setHasAgent] = useState(sp.get("has_agent_phone") === "true");
+  const [fixerUpper, setFixerUpper] = useState(sp.get("fixer_upper") === "true");
   const [minProfit, setMinProfit] = useState(sp.get("min_profit") || "");
   const [minProfitPct, setMinProfitPct] = useState(sp.get("min_profit_percent") || "");
   const [sort, setSort] = useState(sp.get("sort") || "newest");
@@ -36,6 +37,7 @@ export default function SearchFilters() {
     if (minBeds) qs.set("min_beds", minBeds);
     if (hasPhotos) qs.set("has_photos", "true");
     if (hasAgent) qs.set("has_agent_phone", "true");
+    if (fixerUpper) qs.set("fixer_upper", "true");
     if (minProfit) qs.set("min_profit", minProfit);
     if (minProfitPct) qs.set("min_profit_percent", minProfitPct);
     if (sort !== "newest") qs.set("sort", sort);
@@ -45,7 +47,7 @@ export default function SearchFilters() {
   const reset = () => {
     setState(""); setZip(""); setCity(""); setSource("");
     setMinPrice(""); setMaxPrice(""); setMinBeds("");
-    setHasPhotos(false); setHasAgent(false);
+    setHasPhotos(false); setHasAgent(false); setFixerUpper(false);
     setMinProfit(""); setMinProfitPct("");
     setSort("newest");
     router.push("/");
@@ -149,6 +151,11 @@ export default function SearchFilters() {
           <input type="checkbox" checked={hasAgent} onChange={(e) => setHasAgent(e.target.checked)}
             className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
           Has agent phone
+        </label>
+        <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-amber-700">
+          <input type="checkbox" checked={fixerUpper} onChange={(e) => setFixerUpper(e.target.checked)}
+            className="h-4 w-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500" />
+          🔨 Fixer-uppers only
         </label>
         <div className="flex-1" />
         <button type="button" onClick={reset}

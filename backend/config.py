@@ -20,5 +20,14 @@ class Settings(BaseSettings):
     scraper_delay_seconds: float = 2.0
     scraper_max_pages: int = 50
 
+    @property
+    def sqlalchemy_url(self) -> str:
+        """Normalized DB URL. Neon/Heroku hand out `postgres://` URLs, but
+        SQLAlchemy 2.0 only accepts the `postgresql://` scheme."""
+        url = self.database_url
+        if url.startswith("postgres://"):
+            url = "postgresql://" + url[len("postgres://"):]
+        return url
+
 
 settings = Settings()

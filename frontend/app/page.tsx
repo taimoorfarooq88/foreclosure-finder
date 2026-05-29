@@ -23,6 +23,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
     min_beds: pickStr(searchParams.min_beds),
     has_photos: pickStr(searchParams.has_photos) === "true",
     has_agent_phone: pickStr(searchParams.has_agent_phone) === "true",
+    fixer_upper: pickStr(searchParams.fixer_upper) === "true",
     min_profit: pickStr(searchParams.min_profit),
     min_profit_percent: pickStr(searchParams.min_profit_percent),
     sort: pickStr(searchParams.sort) || "newest",

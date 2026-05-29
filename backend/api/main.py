@@ -72,6 +72,7 @@ def search_properties(
     property_type: str | None = Query(None),
     has_photos: bool = Query(False),
     has_agent_phone: bool = Query(False),
+    fixer_upper: bool = Query(False, description="Only homes needing significant renovation (est. repair >= $20k)"),
     min_profit: float | None = Query(None, description="Filter to deals where (market_value - price - repair_cost) >= this amount"),
     min_profit_percent: float | None = Query(None, description="Filter to deals where profit / market_value >= this %"),
     sort: str = Query("newest", pattern="^(newest|price_asc|price_desc|beds_desc|profit_desc|profit_percent_desc)$"),
@@ -104,6 +105,11 @@ def search_properties(
         filters.append(Property.photos.is_not(None))
     if has_agent_phone:
         filters.append(Property.agent_phone.is_not(None))
+    if fixer_upper:
+        # Fixer-upper = needs meaningful renovation. Foreclosure/REO homes sold
+        # "as-is" with a sizable repair estimate are the classic cheap-rehab deal.
+        filters.append(Property.estimated_repair_cost.is_not(None))
+        filters.append(Property.estimated_repair_cost >= 20000)
 
     # Profit = market_value - price - COALESCE(repair_cost, 0). Only meaningful when both
     # market_value and price are present, so guard with NOT NULL too.

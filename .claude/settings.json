@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"from config import settings; print\\('sqlalchemy_url ok:', settings.sqlalchemy_url[:24]\\); from api.main import app; print\\('app import ok'\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(echo \"TSC EXIT: $?\")"
+    ]
+  }
+}
