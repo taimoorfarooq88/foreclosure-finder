@@ -37,6 +37,8 @@ export type Property = {
     baths: number;
     sqft: number;
     distance_miles: number;
+    lat?: number;
+    lng?: number;
   }> | null;
   created_at: string;
   updated_at: string;
@@ -87,4 +89,30 @@ export async function getStats(): Promise<StatsResponse> {
   const res = await fetch(`${API_URL}/api/stats`, { cache: "no-store" });
   if (!res.ok) throw new Error(`API ${res.status}`);
   return res.json();
+}
+
+export type NearbyProperty = {
+  id: number;
+  address: string;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  price: number | null;
+  estimated_market_value: number | null;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  distance_miles: number | null;
+};
+
+export async function getNearby(id: number, limit = 12): Promise<NearbyProperty[]> {
+  try {
+    const res = await fetch(`${API_URL}/api/properties/${id}/nearby?limit=${limit}`, { cache: "no-store" });
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProperty } from "@/lib/api";
+import MapPanel from "@/components/MapPanel";
+import { getNearby, getProperty } from "@/lib/api";
 import { computeProfit, formatPrice, sourceName } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
     notFound();
   }
 
+  const nearby = await getNearby(id);
   const profit = computeProfit(p);
 
   return (
@@ -112,6 +114,8 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
             </div>
           )}
+
+          <MapPanel property={p} nearby={nearby} />
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <h2 className="mb-3 font-semibold text-slate-900">Property Details</h2>

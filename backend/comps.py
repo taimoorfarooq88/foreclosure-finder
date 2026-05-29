@@ -151,6 +151,33 @@ STATE_AREA_CODES: dict[str, str] = {
 }
 
 
+# Approximate geographic center of each state (lat, lng). Used to place sample
+# listings on the map. Real scrapers will supply exact coordinates per property.
+STATE_COORDS: dict[str, tuple[float, float]] = {
+    "AL": (32.8, -86.8), "AK": (64.2, -149.5), "AZ": (34.3, -111.7), "AR": (34.9, -92.4),
+    "CA": (37.2, -119.5), "CO": (39.0, -105.5), "CT": (41.6, -72.7), "DE": (39.0, -75.5),
+    "DC": (38.9, -77.0), "FL": (28.6, -81.5), "GA": (32.6, -83.4), "HI": (20.6, -157.5),
+    "ID": (44.4, -114.6), "IL": (40.0, -89.2), "IN": (39.9, -86.3), "IA": (42.0, -93.5),
+    "KS": (38.5, -98.4), "KY": (37.5, -85.3), "LA": (31.0, -92.0), "ME": (45.4, -69.2),
+    "MD": (39.0, -76.8), "MA": (42.3, -71.8), "MI": (44.3, -85.4), "MN": (46.3, -94.3),
+    "MS": (32.7, -89.7), "MO": (38.4, -92.5), "MT": (47.0, -109.6), "NE": (41.5, -99.8),
+    "NV": (39.3, -116.6), "NH": (43.7, -71.6), "NJ": (40.2, -74.7), "NM": (34.4, -106.1),
+    "NY": (42.9, -75.5), "NC": (35.5, -79.4), "ND": (47.5, -100.3), "OH": (40.3, -82.8),
+    "OK": (35.6, -97.5), "OR": (44.0, -120.5), "PA": (40.9, -77.8), "PR": (18.2, -66.4),
+    "RI": (41.7, -71.6), "SC": (33.9, -80.9), "SD": (44.4, -100.2), "TN": (35.9, -86.4),
+    "TX": (31.5, -99.3), "UT": (39.3, -111.7), "VT": (44.1, -72.7), "VA": (37.5, -78.9),
+    "WA": (47.4, -120.5), "WV": (38.6, -80.6), "WI": (44.6, -89.9), "WY": (43.0, -107.5),
+}
+
+
+def _city_coords(state: str, city: str, zip_code: str) -> tuple[float, float]:
+    """A stable approximate point for a city — same city always maps to the same
+    base, so listings (and their comps) in that city cluster together on the map."""
+    base_lat, base_lng = STATE_COORDS.get(state, (39.5, -98.35))
+    crng = _deterministic_rng(f"city-{state}-{city}-{zip_code}")
+    return base_lat + crng.uniform(-0.6, 0.6), base_lng + crng.uniform(-0.8, 0.8)
+
+
 def _gen_address(rng: random.Random) -> str:
     number = rng.randint(100, 9999)
     street = rng.choice(STREET_NAMES)
@@ -183,8 +210,17 @@ def _estimate_repair_cost(rng: random.Random, year_built: int, sqft: int, status
     return int(base * rng.uniform(0.7, 1.3) / 100) * 100
 
 
-def _make_comp(rng: random.Random, base_addr_zip: str, base_market_value: int, base_beds: int, base_baths: float, base_sqft: int) -> dict:
-    """One nearby comparable sale within the same ZIP."""
+def _make_comp(
+    rng: random.Random,
+    base_addr_zip: str,
+    base_market_value: int,
+    base_beds: int,
+    base_baths: float,
+    base_sqft: int,
+    base_lat: float,
+    base_lng: float,
+) -> dict:
+    """One nearby comparable sale within the same ZIP, placed near the subject."""
     addr = _gen_address(rng)
     sold_price = int(base_market_value * rng.uniform(0.9, 1.1) / 1000) * 1000
     days_ago = rng.randint(15, 180)
@@ -197,6 +233,8 @@ def _make_comp(rng: random.Random, base_addr_zip: str, base_market_value: int, b
         "baths": max(1.0, base_baths + rng.choice([-0.5, 0, 0, 0, 0.5])),
         "sqft": int(base_sqft * rng.uniform(0.85, 1.15) / 50) * 50,
         "distance_miles": round(rng.uniform(0.2, 2.5), 1),
+        "lat": round(base_lat + rng.uniform(-0.012, 0.012), 6),
+        "lng": round(base_lng + rng.uniform(-0.012, 0.012), 6),
     }
 
 
@@ -226,8 +264,13 @@ def generate_property(state: str, idx: int) -> dict:
 
     repair_cost = _estimate_repair_cost(rng, year_built, sqft, status)
 
+    # Geo-locate the property near its city, then cluster comps around it.
+    city_lat, city_lng = _city_coords(state, city, zip_code)
+    latitude = round(city_lat + rng.uniform(-0.02, 0.02), 6)
+    longitude = round(city_lng + rng.uniform(-0.02, 0.02), 6)
+
     # 3 comparable nearby sales
-    comps = [_make_comp(rng, zip_code, market_value, beds, baths, sqft) for _ in range(3)]
+    comps = [_make_comp(rng, zip_code, market_value, beds, baths, sqft, latitude, longitude) for _ in range(3)]
 
     agent = _gen_agent(rng, state, city)
     address = _gen_address(rng)
@@ -255,6 +298,8 @@ def generate_property(state: str, idx: int) -> dict:
         "city": city,
         "state": state,
         "zip_code": zip_code,
+        "latitude": latitude,
+        "longitude": longitude,
         "price": float(price),
         "status": status,
         "listing_date": datetime.utcnow() - timedelta(days=listing_offset_days),

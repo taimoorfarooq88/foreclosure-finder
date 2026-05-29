@@ -48,6 +48,26 @@ class PropertyOut(BaseModel):
     updated_at: datetime
 
 
+class NearbyOut(BaseModel):
+    """Lightweight listing summary for the map / neighborhood comparison."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    address: str
+    city: str | None
+    state: str | None
+    zip_code: str | None
+    latitude: float | None
+    longitude: float | None
+    price: float | None
+    estimated_market_value: float | None
+    beds: int | None
+    baths: float | None
+    sqft: int | None
+    distance_miles: float | None = None
+
+
 class SearchResponse(BaseModel):
     total: int
     page: int

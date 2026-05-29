@@ -8,7 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from api.schemas import PropertyOut, SearchResponse, StatsResponse
+from math import asin, cos, radians, sin, sqrt
+
+from api.schemas import NearbyOut, PropertyOut, SearchResponse, StatsResponse
 from db.database import get_db, init_db
 from db.models import Property, ScrapeRun
 
@@ -155,6 +157,49 @@ def get_property(property_id: int, db: DbDep) -> PropertyOut:
     if not prop:
         raise HTTPException(404, "Property not found")
     return PropertyOut.model_validate(prop)
+
+
+def _haversine_miles(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    """Great-circle distance between two lat/lng points, in miles."""
+    r = 3958.8  # Earth radius in miles
+    dlat = radians(lat2 - lat1)
+    dlng = radians(lng2 - lng1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    return round(2 * r * asin(sqrt(a)), 1)
+
+
+@app.get("/api/properties/{property_id}/nearby", response_model=list[NearbyOut])
+def nearby_properties(
+    property_id: int,
+    db: DbDep,
+    limit: int = Query(12, ge=1, le=50),
+) -> list[NearbyOut]:
+    """Other foreclosure listings near this one — same state, sorted by distance.
+    Used for the map and the neighborhood value comparison."""
+    prop = db.get(Property, property_id)
+    if not prop:
+        raise HTTPException(404, "Property not found")
+
+    stmt = select(Property).where(Property.id != property_id)
+    if prop.state:
+        stmt = stmt.where(Property.state == prop.state)
+    elif prop.zip_code:
+        stmt = stmt.where(Property.zip_code == prop.zip_code)
+    else:
+        return []
+
+    rows = db.execute(stmt).scalars().all()
+
+    out: list[NearbyOut] = []
+    for r in rows:
+        item = NearbyOut.model_validate(r)
+        if prop.latitude is not None and prop.longitude is not None and r.latitude is not None and r.longitude is not None:
+            item.distance_miles = _haversine_miles(prop.latitude, prop.longitude, r.latitude, r.longitude)
+        out.append(item)
+
+    # Nearest first; listings without coordinates sink to the bottom.
+    out.sort(key=lambda x: x.distance_miles if x.distance_miles is not None else 1e9)
+    return out[:limit]
 
 
 @app.get("/api/stats", response_model=StatsResponse)
