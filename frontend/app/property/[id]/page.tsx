@@ -20,45 +20,50 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
 
   return (
     <div className="space-y-6">
-      <Link href="/" className="text-sm text-brand-600 hover:underline">← Back to search</Link>
+      <Link
+        href="/"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 shadow-sm transition hover:border-brand-200 hover:text-brand-700"
+      >
+        ← Back to search
+      </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
           {p.photos && p.photos.length > 0 ? (
             <div className="grid grid-cols-2 gap-2">
-              <div className="col-span-2 aspect-[16/9] bg-slate-100 rounded-lg overflow-hidden">
+              <div className="col-span-2 aspect-[16/9] overflow-hidden rounded-2xl bg-slate-100 shadow-card">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.photos[0]} alt={p.address} className="w-full h-full object-cover" />
+                <img src={p.photos[0]} alt={p.address} className="h-full w-full object-cover" />
               </div>
               {p.photos.slice(1, 5).map((src, i) => (
-                <div key={i} className="aspect-[4/3] bg-slate-100 rounded-lg overflow-hidden">
+                <div key={i} className="aspect-[4/3] overflow-hidden rounded-xl bg-slate-100 shadow-card">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt={`${p.address} ${i + 2}`} className="w-full h-full object-cover" />
+                  <img src={src} alt={`${p.address} ${i + 2}`} className="h-full w-full object-cover" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="aspect-[16/9] bg-slate-100 rounded-lg flex items-center justify-center text-slate-400">
+            <div className="flex aspect-[16/9] items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
               No photos available
             </div>
           )}
 
-          <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-3">
+          <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-3xl font-bold text-slate-900">{formatPrice(p.price)}</div>
+                <div className="text-3xl font-bold tracking-tight text-slate-900">{formatPrice(p.price)}</div>
                 <div className="mt-1 text-sm text-slate-600">
                   {[p.beds && `${p.beds} bd`, p.baths && `${p.baths} ba`, p.sqft && `${p.sqft.toLocaleString()} sqft`]
                     .filter(Boolean)
                     .join("  ·  ")}
                 </div>
               </div>
-              <div className="text-right space-y-1">
-                <div className="inline-block bg-brand-600 text-white text-xs px-2 py-1 rounded">
+              <div className="space-y-1 text-right">
+                <div className="inline-block rounded-md bg-brand-600 px-2 py-1 text-xs font-semibold text-white">
                   {sourceName(p.source)}
                 </div>
                 {p.status && (
-                  <div className="text-xs text-slate-600 bg-slate-100 inline-block px-2 py-1 rounded ml-1">
+                  <div className="ml-1 inline-block rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">
                     {p.status}
                   </div>
                 )}
@@ -73,42 +78,43 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
           </div>
 
           {profit && (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-lg p-5">
-              <h2 className="font-bold text-green-900 mb-3 flex items-center gap-2">
+            <div className="rounded-2xl border-2 border-emerald-300 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-card">
+              <h2 className="mb-3 flex items-center gap-2 font-bold text-emerald-900">
                 <span>💰</span> Profit Analysis
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 <div>
-                  <div className="text-xs text-slate-600 uppercase">Foreclosure Price</div>
+                  <div className="text-xs uppercase text-slate-600">Foreclosure Price</div>
                   <div className="text-xl font-bold text-slate-900">{formatPrice(profit.price)}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-600 uppercase">Est. Market Value</div>
-                  <div className="text-xl font-bold text-blue-700">{formatPrice(profit.marketValue)}</div>
+                  <div className="text-xs uppercase text-slate-600">Est. Market Value</div>
+                  <div className="text-xl font-bold text-brand-700">{formatPrice(profit.marketValue)}</div>
                 </div>
                 <div>
-                  <div className="text-xs text-slate-600 uppercase">Repair Estimate</div>
+                  <div className="text-xs uppercase text-slate-600">Repair Estimate</div>
                   <div className="text-xl font-bold text-amber-700">−{formatPrice(profit.repairCost)}</div>
                 </div>
-                <div className="border-l-2 border-green-400 pl-4">
-                  <div className="text-xs text-green-800 uppercase font-semibold">Net Profit Potential</div>
-                  <div className={`text-2xl font-bold ${profit.netProfit > 0 ? "text-green-700" : "text-red-700"}`}>
-                    {profit.netProfit > 0 ? "+" : ""}{formatPrice(profit.netProfit)}
+                <div className="border-l-2 border-emerald-400 pl-4">
+                  <div className="text-xs font-semibold uppercase text-emerald-800">Net Profit Potential</div>
+                  <div className={`text-2xl font-bold ${profit.netProfit > 0 ? "text-emerald-700" : "text-red-700"}`}>
+                    {profit.netProfit > 0 ? "+" : ""}
+                    {formatPrice(profit.netProfit)}
                   </div>
-                  <div className={`text-sm font-medium ${profit.profitPercent > 0 ? "text-green-700" : "text-red-700"}`}>
+                  <div className={`text-sm font-medium ${profit.profitPercent > 0 ? "text-emerald-700" : "text-red-700"}`}>
                     {profit.profitPercent.toFixed(1)}% ROI
                   </div>
                 </div>
               </div>
-              <div className="mt-3 pt-3 border-t border-green-200 text-xs text-slate-600">
-                Market value estimated from nearby comparable sales (see below). Repair cost estimate based on year built
-                + square footage — always confirm with a contractor before purchase.
+              <div className="mt-3 border-t border-emerald-200 pt-3 text-xs text-slate-600">
+                Market value estimated from nearby comparable sales (see below). Repair cost estimate based on year
+                built + square footage — always confirm with a contractor before purchase.
               </div>
             </div>
           )}
 
-          <div className="bg-white border border-slate-200 rounded-lg p-5">
-            <h2 className="font-semibold text-slate-900 mb-3">Property Details</h2>
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+            <h2 className="mb-3 font-semibold text-slate-900">Property Details</h2>
             <dl className="grid grid-cols-2 gap-y-2 text-sm">
               <Detail k="Type" v={p.property_type} />
               <Detail k="Bedrooms" v={p.beds} />
@@ -120,23 +126,23 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               <Detail k="Auction / Bid Open" v={p.auction_date ? new Date(p.auction_date).toLocaleDateString() : null} />
             </dl>
             {p.description && (
-              <div className="mt-4 pt-4 border-t border-slate-100">
-                <h3 className="font-semibold text-slate-900 mb-2 text-sm">Description</h3>
-                <p className="text-sm text-slate-700 whitespace-pre-line">{p.description}</p>
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <h3 className="mb-2 text-sm font-semibold text-slate-900">Description</h3>
+                <p className="whitespace-pre-line text-sm text-slate-700">{p.description}</p>
               </div>
             )}
           </div>
 
           {p.comps && p.comps.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-lg p-5">
-              <h2 className="font-semibold text-slate-900 mb-1">Nearby Comparable Sales</h2>
-              <p className="text-xs text-slate-500 mb-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+              <h2 className="mb-1 font-semibold text-slate-900">Nearby Comparable Sales</h2>
+              <p className="mb-3 text-xs text-slate-500">
                 Recent sales of similar homes within {p.zip_code} — used to estimate this property&apos;s market value.
               </p>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-xs text-slate-500 uppercase border-b border-slate-200">
+                    <tr className="border-b border-slate-200 text-left text-xs uppercase text-slate-500">
                       <th className="py-2 pr-2">Address</th>
                       <th className="py-2 pr-2">Sold Price</th>
                       <th className="py-2 pr-2">Sold Date</th>
@@ -149,7 +155,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                     {p.comps.map((c, i) => (
                       <tr key={i} className="border-b border-slate-100 last:border-0">
                         <td className="py-2 pr-2 font-medium text-slate-900">{c.address}</td>
-                        <td className="py-2 pr-2 font-semibold text-green-700">{formatPrice(c.sold_price)}</td>
+                        <td className="py-2 pr-2 font-semibold text-emerald-700">{formatPrice(c.sold_price)}</td>
                         <td className="py-2 pr-2 text-slate-600">{new Date(c.sold_date).toLocaleDateString()}</td>
                         <td className="py-2 pr-2 text-slate-600">{c.beds} bd / {c.baths} ba</td>
                         <td className="py-2 pr-2 text-slate-600">{c.sqft.toLocaleString()}</td>
@@ -160,11 +166,11 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 </table>
               </div>
               {profit && (
-                <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600">
+                <div className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-600">
                   Avg comp sale: <b>{formatPrice(p.comps.reduce((s, c) => s + c.sold_price, 0) / p.comps.length)}</b>
                   {"  ·  "}
                   This listing is priced{" "}
-                  <b className={profit.grossProfit > 0 ? "text-green-700" : "text-red-700"}>
+                  <b className={profit.grossProfit > 0 ? "text-emerald-700" : "text-red-700"}>
                     {((1 - profit.price / profit.marketValue) * 100).toFixed(0)}% below
                   </b>{" "}
                   comparable market value.
@@ -175,8 +181,8 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
         </div>
 
         <aside className="space-y-4">
-          <div className="bg-white border-2 border-brand-600 rounded-lg p-5 sticky top-24">
-            <div className="text-xs text-brand-700 font-medium uppercase tracking-wide mb-2">Listing Agent</div>
+          <div className="sticky top-24 rounded-2xl border-2 border-brand-600 bg-white p-5 shadow-soft">
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-brand-700">Listing Agent</div>
             {p.agent_name || p.agent_phone || p.agent_email ? (
               <div className="space-y-3">
                 {p.agent_name && (
@@ -188,7 +194,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 {p.agent_phone && (
                   <a
                     href={`tel:${p.agent_phone.replace(/[^\d+]/g, "")}`}
-                    className="block w-full text-center bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded text-lg"
+                    className="block w-full rounded-lg bg-brand-600 py-3 text-center text-lg font-semibold text-white transition hover:bg-brand-700"
                   >
                     📞 {p.agent_phone}
                   </a>
@@ -196,7 +202,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 {p.agent_email && (
                   <a
                     href={`mailto:${p.agent_email}`}
-                    className="block w-full text-center border-2 border-brand-600 text-brand-700 hover:bg-brand-50 font-medium py-2 rounded text-sm"
+                    className="block w-full rounded-lg border-2 border-brand-600 py-2 text-center text-sm font-medium text-brand-700 transition hover:bg-brand-50"
                   >
                     ✉ {p.agent_email}
                   </a>
@@ -213,7 +219,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 href={p.source_url}
                 target="_blank"
                 rel="noreferrer"
-                className="block mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600 hover:text-brand-600"
+                className="mt-4 block border-t border-slate-100 pt-4 text-sm text-slate-600 transition hover:text-brand-600"
               >
                 View original listing on {sourceName(p.source)} ↗
               </a>
