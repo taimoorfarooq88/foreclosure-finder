@@ -7,11 +7,14 @@ from __future__ import annotations
 import asyncio
 import logging
 import sys
+from datetime import datetime
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from sqlalchemy import delete
 
 from db.database import SessionLocal, init_db
+from db.models import Property
 from scrapers import ALL_SCRAPERS
 
 logging.basicConfig(
@@ -26,10 +29,24 @@ async def run_all_scrapers(states: list[str] | None = None) -> None:
     for scraper_cls in ALL_SCRAPERS:
         db = SessionLocal()
         try:
+            run_start = datetime.utcnow()
             async with scraper_cls() as scraper:
                 logger.info("Starting scraper: %s", scraper.source)
                 result = await scraper.run(db, states=states)
                 logger.info("Scraper %s done: %s", scraper.source, result)
+
+            # Prune listings that vanished from the source (sold / withdrawn). Only
+            # safe on a full run (no state filter) that actually returned data —
+            # otherwise we could wipe states we simply didn't scrape this time.
+            if states is None and result.get("found", 0) > 0:
+                pruned = db.execute(
+                    delete(Property).where(
+                        Property.source == scraper_cls.source,
+                        Property.updated_at < run_start,
+                    )
+                )
+                db.commit()
+                logger.info("Pruned %d stale %s listings", pruned.rowcount, scraper_cls.source)
         except Exception:
             logger.exception("Scraper %s failed", scraper_cls.__name__)
         finally:

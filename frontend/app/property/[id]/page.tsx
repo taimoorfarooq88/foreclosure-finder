@@ -53,7 +53,11 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
           <div className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-3xl font-bold tracking-tight text-slate-900">{formatPrice(p.price)}</div>
+                {p.price != null ? (
+                  <div className="text-3xl font-bold tracking-tight text-slate-900">{formatPrice(p.price)}</div>
+                ) : (
+                  <div className="text-xl font-bold text-brand-700">Price on HUD Home Store</div>
+                )}
                 <div className="mt-1 text-sm text-slate-600">
                   {[p.beds && `${p.beds} bd`, p.baths && `${p.baths} ba`, p.sqft && `${p.sqft.toLocaleString()} sqft`]
                     .filter(Boolean)

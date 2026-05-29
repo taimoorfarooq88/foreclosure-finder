@@ -55,7 +55,11 @@ export default function PropertyCard({ p }: { p: Property }) {
 
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-baseline justify-between gap-2">
-          <div className="text-xl font-bold tracking-tight text-slate-900">{formatPrice(p.price)}</div>
+          {p.price != null ? (
+            <div className="text-xl font-bold tracking-tight text-slate-900">{formatPrice(p.price)}</div>
+          ) : (
+            <div className="text-sm font-semibold text-brand-700">Price on HUD Home Store</div>
+          )}
           {profit && (
             <div className="text-[11px] text-slate-500">
               Market <span className="font-semibold text-slate-700">{formatPrice(profit.marketValue)}</span>
@@ -66,7 +70,7 @@ export default function PropertyCard({ p }: { p: Property }) {
         <div className="mt-1 text-sm text-slate-600">
           {[p.beds && `${p.beds} bd`, p.baths && `${p.baths} ba`, p.sqft && `${p.sqft.toLocaleString()} sqft`]
             .filter(Boolean)
-            .join("  ·  ") || "Details on listing"}
+            .join("  ·  ") || "See listing for details"}
         </div>
 
         <div className="mt-1.5 line-clamp-1 text-sm font-medium leading-snug text-slate-900 group-hover:text-brand-700">
