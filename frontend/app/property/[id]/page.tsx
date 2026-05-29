@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import MapPanel from "@/components/MapPanel";
 import { getNearby, getProperty } from "@/lib/api";
-import { computeProfit, formatPrice, sourceName } from "@/lib/constants";
+import { computeProfit, formatPrice, satelliteTileUrl, sourceName } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +43,18 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                   <img src={src} alt={`${p.address} ${i + 2}`} className="h-full w-full object-cover" />
                 </div>
               ))}
+            </div>
+          ) : p.latitude != null && p.longitude != null ? (
+            <div className="relative aspect-[16/9] overflow-hidden rounded-2xl bg-slate-100 shadow-card">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={satelliteTileUrl(p.latitude, p.longitude, 17) ?? ""}
+                alt={`Aerial view of ${p.address}`}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute bottom-3 right-3 rounded-md bg-black/55 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                🛰️ Aerial view · listing photos on HUD Home Store
+              </div>
             </div>
           ) : (
             <div className="flex aspect-[16/9] items-center justify-center rounded-2xl bg-slate-100 text-slate-400">

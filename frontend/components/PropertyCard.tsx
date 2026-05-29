@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { type Property } from "@/lib/api";
-import { computeProfit, formatPrice, sourceName } from "@/lib/constants";
+import { computeProfit, formatPrice, satelliteTileUrl, sourceName } from "@/lib/constants";
 
 export default function PropertyCard({ p }: { p: Property }) {
   const photo = p.photos && p.photos.length > 0 ? p.photos[0] : null;
+  const aerial = !photo && p.latitude != null && p.longitude != null ? satelliteTileUrl(p.latitude, p.longitude, 16) : null;
   const profit = computeProfit(p);
 
   const profitBadgeColor =
@@ -30,6 +31,19 @@ export default function PropertyCard({ p }: { p: Property }) {
             alt={p.address}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
+        ) : aerial ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={aerial}
+              alt={`Aerial view of ${p.address}`}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+            <div className="absolute bottom-2 right-2.5 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+              🛰️ Aerial view
+            </div>
+          </>
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-slate-400">No photo</div>
         )}

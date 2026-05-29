@@ -37,6 +37,20 @@ export function formatPrice(n: number | null): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
 
+/**
+ * Esri World Imagery satellite tile covering a lat/lng — free, no API key.
+ * Used as a real aerial thumbnail for listings that have no photo (HUD REO data
+ * has location but no images).
+ */
+export function satelliteTileUrl(lat: number, lng: number, zoom = 16): string | null {
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  const n = 2 ** zoom;
+  const x = Math.floor(((lng + 180) / 360) * n);
+  const latRad = (lat * Math.PI) / 180;
+  const y = Math.floor(((1 - Math.asinh(Math.tan(latRad)) / Math.PI) / 2) * n);
+  return `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${zoom}/${y}/${x}`;
+}
+
 export type ProfitAnalysis = {
   marketValue: number;
   price: number;
