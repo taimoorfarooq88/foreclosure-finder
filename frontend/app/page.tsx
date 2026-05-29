@@ -63,10 +63,6 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
           <h1 className="text-3xl md:text-[2.6rem] font-extrabold leading-tight tracking-tight max-w-3xl">
             Find Foreclosed Home Deals Across All 50 States
           </h1>
-          <p className="mt-3 text-brand-50/90 text-sm md:text-base max-w-2xl leading-relaxed">
-            Aggregated from HUD, Fannie Mae, Freddie Mac, VA, USDA, and Auction.com — with photos, profit analysis,
-            and the listing agent&apos;s phone number, ready to call.
-          </p>
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
             <Stat value="50+" label="States covered" />
             <Stat value="6" label="Official sources" />
