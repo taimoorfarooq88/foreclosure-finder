@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import MapPanel from "@/components/MapPanel";
 import ListingImage from "@/components/ListingImage";
 import { getNearby, getProperty } from "@/lib/api";
-import { computeProfit, formatPrice, satelliteTileUrl, sourceName, streetViewUrl } from "@/lib/constants";
+import { computeProfit, formatPrice, satelliteTileUrl, sourceName, streetViewUrl, zillowSearchUrl } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -228,7 +228,7 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
               </div>
             ) : (
               <div className="text-sm text-slate-500">
-                Agent contact not available for this listing. Visit the source site below for inquiries.
+                Agent phone &amp; email are on the official HUD listing — open it below.
               </div>
             )}
 
@@ -237,11 +237,41 @@ export default async function PropertyDetailPage({ params }: { params: { id: str
                 href={p.source_url}
                 target="_blank"
                 rel="noreferrer"
-                className="mt-4 block border-t border-slate-100 pt-4 text-sm text-slate-600 transition hover:text-brand-600"
+                className="mt-3 block w-full rounded-lg bg-brand-600 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-brand-700"
               >
-                View original listing on {sourceName(p.source)} ↗
+                🏛️ View on HUD Home Store (agent &amp; price) ↗
               </a>
             )}
+          </div>
+
+          {/* Compare on the big portals — opens a search for this exact address */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+            <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Photos &amp; market value
+            </div>
+            <div className="space-y-2">
+              <a
+                href={zillowSearchUrl(p)}
+                target="_blank"
+                rel="noreferrer"
+                className="block w-full rounded-lg border-2 border-[#006aff] py-2.5 text-center text-sm font-semibold text-[#006aff] transition hover:bg-[#006aff]/5"
+              >
+                🔎 See photos &amp; value on Zillow ↗
+              </a>
+              <a
+                href={`https://www.google.com/search?q=${encodeURIComponent(
+                  [p.address, p.city, p.state, p.zip_code].filter(Boolean).join(" ") + " home"
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="block w-full rounded-lg border border-slate-300 py-2.5 text-center text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+              >
+                🌐 Search on Google ↗
+              </a>
+            </div>
+            <p className="mt-3 text-[11px] leading-relaxed text-slate-400">
+              Zillow/Google open in a new tab so you can view interior photos, the Zestimate value, and nearby sales.
+            </p>
           </div>
         </aside>
       </div>

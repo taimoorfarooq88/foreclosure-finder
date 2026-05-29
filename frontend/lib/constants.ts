@@ -37,6 +37,22 @@ export function formatPrice(n: number | null): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
 
+type AddrLike = { address: string; city?: string | null; state?: string | null; zip_code?: string | null };
+
+function fullAddress(p: AddrLike): string {
+  return [p.address, p.city, p.state, p.zip_code].filter(Boolean).join(", ");
+}
+
+/** Zillow search for this address — user clicks through to see photos, Zestimate value, etc. */
+export function zillowSearchUrl(p: AddrLike): string {
+  return `https://www.zillow.com/homes/${encodeURIComponent(fullAddress(p))}_rb/`;
+}
+
+/** Realtor.com search for this address. */
+export function realtorSearchUrl(p: AddrLike): string {
+  return `https://www.realtor.com/realestateandhomes-search/${encodeURIComponent(fullAddress(p).replace(/, /g, "_"))}`;
+}
+
 /**
  * Google Street View Static image of the actual house at a lat/lng.
  * `return_error_code=true` makes Google return HTTP 404 (instead of a gray

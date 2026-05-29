@@ -93,7 +93,7 @@ class HudReoScraper(BaseScraper):
 
         return ScrapedProperty(
             source_id=case_num,
-            source_url=f"{self.base_url}/Listing/PropertySearch.aspx?caseNumber={case_num}",
+            source_url=f"{self.base_url}/propertydetails?caseNumber={case_num}",
             address=address,
             city=_clean(a.get("CITY")),
             state=_clean(a.get("STATE_CODE")),
